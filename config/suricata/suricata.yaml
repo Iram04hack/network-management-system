@@ -1,0 +1,121 @@
+%YAML 1.1
+---
+# Configuration Suricata simplifiée pour NMS (mode pcap-file pour la stabilité)
+vars:
+  address-groups:
+    HOME_NET: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+    EXTERNAL_NET: "!$HOME_NET"
+    
+  port-groups:
+    HTTP_PORTS: "80"
+    HTTPS_PORTS: "443"
+    SSH_PORTS: "22"
+    DNS_PORTS: "53"
+
+default-rule-path: /etc/suricata/rules
+rule-files:
+  - suricata.rules
+  - local.rules
+
+# Mode pcap-file pour éviter les problèmes d'interface
+pcap-file:
+  checksum-checks: auto
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert
+        - http
+        - dns
+        - tls
+        - files
+        - ssh
+        - flow
+  - fast:
+      enabled: yes
+      filename: fast.log
+      append: yes
+  - stats:
+      enabled: yes
+      filename: stats.log
+      append: yes
+      totals: yes
+      threads: no
+
+logging:
+  default-log-level: notice
+  outputs:
+    - console:
+        enabled: yes
+        log-level: notice
+    - file:
+        enabled: yes
+        filename: /var/log/suricata/suricata.log
+        log-level: notice
+
+# Configuration simplifiée des protocoles
+app-layer:
+  protocols:
+    tls:
+      enabled: yes
+    http:
+      enabled: yes
+    ssh:
+      enabled: yes
+    dns:
+      enabled: yes
+
+# Configuration host OS simplifiée
+host-os-policy:
+  linux: [0.0.0.0/0]
+
+# Configuration threading simplifiée
+threading:
+  set-cpu-affinity: no
+  cpu-affinity:
+    management-cpu-set:
+      cpu: [ 0 ]
+    receive-cpu-set:
+      cpu: [ 0 ]
+    worker-cpu-set:
+      cpu: [ 0 ]
+
+# Configuration du moteur de détection
+detect-engine:
+  - profile: medium
+  - custom-values:
+      toclient-src-groups: 2
+      toclient-dst-groups: 2
+      toclient-sp-groups: 2
+      toclient-dp-groups: 3
+      toserver-src-groups: 2
+      toserver-dst-groups: 4
+      toserver-sp-groups: 2
+      toserver-dp-groups: 25
+  - sgh-mpm-context: auto
+  - inspection-recursion-limit: 3000
+
+# Désactiver les fonctionnalités qui nécessitent une interface réseau
+unix-command:
+  enabled: yes
+  filename: /var/run/suricata/suricata-command.socket
+
+# Configuration pour éviter les erreurs
+capture:
+  disable-offloading: false
+
+# Configuration pour le mode offline
+runmode: single
+
+# REST API configuration
+restapi:
+  enabled: yes
+  listen: 0.0.0.0
+  port: 8068
+  tls:
+    enabled: no
+  cors:
+    enabled: yes

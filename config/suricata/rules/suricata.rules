@@ -1,0 +1,20 @@
+# Règles de détection des scans de ports
+alert tcp any any -> $HOME_NET any (msg:"SCAN Port Scan"; flow:stateless; flags:S; threshold:type threshold, track by_src, count 50, seconds 5; classtype:attempted-recon; sid:1000001; rev:1;)
+alert tcp any any -> $HOME_NET 22 (msg:"SCAN SSH Scan"; flow:stateless; flags:S; threshold:type threshold, track by_src, count 5, seconds 60; classtype:attempted-recon; sid:1000002; rev:1;)
+
+# Règles pour détecter les tentatives d'intrusion SSH
+alert tcp any any -> $HOME_NET 22 (msg:"INDICATOR-SCAN SSH brute force login attempt"; flow:to_server; threshold:type threshold, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:1000003; rev:1;)
+
+# Règles pour détecter les tentatives d'intrusion sur l'interface Web
+alert tcp any any -> $HOME_NET 80 (msg:"WEB-ATTACK SQL Injection Attempt"; flow:to_server,established; content:"SELECT"; nocase; content:"FROM"; nocase; distance:1; content:"WHERE"; nocase; distance:1; classtype:web-application-attack; sid:1000004; rev:1;)
+alert tcp any any -> $HOME_NET 443 (msg:"WEB-ATTACK SQL Injection Attempt"; flow:to_server,established; content:"SELECT"; nocase; content:"FROM"; nocase; distance:1; content:"WHERE"; nocase; distance:1; classtype:web-application-attack; sid:1000005; rev:1;)
+
+# Règles pour détecter les tentatives d'accès à l'API
+alert tcp any any -> $HOME_NET 8000 (msg:"INDICATOR-SCAN API brute force attempt"; flow:to_server; threshold:type threshold, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:1000006; rev:1;)
+
+# Règles pour détecter les communications anormales
+alert tcp any any -> any any (msg:"POLICY Large outbound transfer"; flow:from_server; byte_test:4,>,1000000,0,relative; threshold:type threshold, track by_src, count 1, seconds 60; classtype:policy-violation; sid:1000007; rev:1;)
+
+# Règles pour détecter les connexions vers des destinations suspectes
+alert ip any any -> ![192.168.0.0/16,10.0.0.0/8,172.16.0.0/12] any (msg:"POLICY Connexion vers une adresse IP externe suspecte"; threshold:type threshold, track by_src, count 1, seconds 60; classtype:policy-violation; sid:1000008; rev:1;)
+

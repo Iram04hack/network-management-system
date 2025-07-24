@@ -1,0 +1,125 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API GNS3 Client",
+    "description": "\n    Client pour interagir avec l'API GNS3.\n    En environnement de test, utilise automatiquement le service mock GNS3.\n    En production, se connecte \u00e0 un serveur GNS3 r\u00e9el.\n    ",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/projects/{project_id}/nodes": {
+      "get": {
+        "summary": "Liste les n\u0153uds d'un projet",
+        "description": "R\u00e9cup\u00e8re tous les n\u0153uds d'un projet GNS3",
+        "tags": [
+          "API Clients"
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des n\u0153uds r\u00e9cup\u00e9r\u00e9e avec succ\u00e8s"
+          },
+          "404": {
+            "description": "Projet non trouv\u00e9"
+          }
+        },
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "ID du projet",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/projects/{project_id}": {
+      "get": {
+        "summary": "R\u00e9cup\u00e8re un projet sp\u00e9cifique",
+        "description": "R\u00e9cup\u00e8re les d\u00e9tails d'un projet GNS3 par son ID",
+        "tags": [
+          "API Clients"
+        ],
+        "responses": {
+          "200": {
+            "description": "Projet r\u00e9cup\u00e9r\u00e9 avec succ\u00e8s",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Projet non trouv\u00e9"
+          }
+        },
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "ID du projet",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/projects": {
+      "get": {
+        "summary": "Liste tous les projets",
+        "description": "R\u00e9cup\u00e8re la liste de tous les projets sur le serveur GNS3",
+        "tags": [
+          "API Clients"
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des projets r\u00e9cup\u00e9r\u00e9e avec succ\u00e8s",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "project_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autoris\u00e9"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    }
+  }
+}

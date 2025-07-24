@@ -1,0 +1,210 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: nms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nms_user
+      POSTGRES_PASSWORD: nms_password
+      POSTGRES_DB: nms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - nms-backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: nms-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - nms-backend
+
+  django:
+    image: network-management-system_django:latest
+    container_name: nms-django
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    command: ["/app/entrypoint.sh", "uvicorn", "nms_backend.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
+    working_dir: /app
+    volumes:
+      - ./web-interface/django__backend:/app
+      - ./scripts:/scripts
+      - ./config/ssl:/app/ssl
+      - static_content:/app/staticfiles
+      - media_content:/app/media
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+    networks:
+      - nms-backend
+    environment:
+      - DEBUG=true
+      - DJANGO_SETTINGS_MODULE=nms_backend.settings
+      - POSTGRES_HOST=nms-postgres
+      - REDIS_HOST=nms-redis
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - DJANGO_USE_SSL=false
+      - GNS3_HOST=172.18.0.1
+      - GNS3_PORT=3080
+      - GNS3_PROTOCOL=http
+
+  celery:
+    image: network-management-system_django:latest
+    container_name: nms-celery
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    working_dir: /app
+    entrypoint: ["/fix_celery_deps.sh"]
+    command: ["celery", "-A", "nms_backend", "worker", "-l", "info"]
+    networks:
+      - nms-backend
+    volumes:
+      - ./web-interface/django__backend:/app
+      - ./scripts:/scripts
+      - ./fix_celery_deps.sh:/fix_celery_deps.sh
+      - static_content:/app/staticfiles
+      - media_content:/app/media
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DEBUG=true
+      - DJANGO_SETTINGS_MODULE=nms_backend.settings
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=nms-redis
+      - CELERY_BROKER_URL=redis://nms-redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://nms-redis:6379/0
+      - PYTHONPATH=/app
+
+  celery-beat:
+    image: network-management-system_django:latest
+    container_name: nms-celery-beat
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      - celery
+    working_dir: /app
+    entrypoint: ["/fix_celery_deps.sh"]
+    command: ["celery", "-A", "nms_backend", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+    networks:
+      - nms-backend
+    volumes:
+      - ./web-interface/django__backend:/app
+      - ./scripts:/scripts
+      - ./fix_celery_deps.sh:/fix_celery_deps.sh
+      - static_content:/app/staticfiles
+      - media_content:/app/media
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DEBUG=true
+      - DJANGO_SETTINGS_MODULE=nms_backend.settings
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=nms-redis
+      - CELERY_BROKER_URL=redis://nms-redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://nms-redis:6379/0
+      - PYTHONPATH=/app
+
+  # SERVICES POUR FINALISATION DES MODULES API
+
+  # Service Elasticsearch pour AI Assistant et Monitoring
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+    container_name: nms-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - bootstrap.memory_lock=true
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - nms-monitoring
+      - nms-backend
+
+  # Service SNMP Agent amélioré pour tests réels
+  snmp-agent:
+    image: polinux/snmpd:latest
+    container_name: nms-snmp-agent
+    restart: unless-stopped
+    ports:
+      - "161:161/udp"
+      - "162:162/udp"  # Pour les traps SNMP
+    volumes:
+      - ./config/snmp/snmpd.conf:/etc/snmp/snmpd.conf:ro
+      - ./data/snmp:/var/lib/snmp
+    environment:
+      - SNMP_COMMUNITY=public
+      - SNMP_RW_COMMUNITY=private
+      - SNMP_LOCATION=NMS Production Environment
+      - SNMP_CONTACT=admin@nms.local
+      - SNMP_SYSCONTACT=Network Management System
+    healthcheck:
+      test: ["CMD", "snmpget", "-v2c", "-c", "public", "localhost", "1.3.6.1.2.1.1.1.0"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - nms-network
+      - nms-backend
+
+  # Service Netflow Collector avec API REST
+  netflow-collector:
+    image: nginx:alpine
+    container_name: nms-netflow-collector
+    restart: unless-stopped
+    ports:
+      - "9995:80"  # Port API pour Netflow
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    volumes:
+      - ./config/netflow:/usr/share/nginx/html:ro
+      - ./config/netflow/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - nms-network
+      - nms-monitoring
+
+
+
+networks:
+  nms-backend:
+    driver: bridge
+  nms-monitoring:
+    driver: bridge
+  nms-network:
+    driver: bridge
+
+volumes:
+  static_content:
+  media_content:

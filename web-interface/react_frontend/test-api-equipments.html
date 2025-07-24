@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API Équipements</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .info { background-color: #e2f3ff; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test API Équipements - Vérification du système unifié</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+        async function testApis() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test 1: API Network Devices (vraie source d'équipements)
+                results.innerHTML += '<div class="test-section info"><h3>1. Test API Network Devices (/api/network/devices/)</h3><div id="test1">Chargement...</div></div>';
+                
+                const networkResponse = await fetch('http://localhost:8000/api/network/devices/', {
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin@hybrido.com:hybrido2025')
+                    }
+                });
+                
+                if (networkResponse.ok) {
+                    const networkDevices = await networkResponse.json();
+                    const totalDevices = networkDevices.length;
+                    const activeDevices = networkDevices.filter(d => d.is_active).length;
+                    
+                    document.getElementById('test1').innerHTML = `
+                        <div class="success">
+                            <strong>✅ API Network Devices OK</strong><br>
+                            Total Équipements: <strong>${totalDevices}</strong><br>
+                            Équipements Actifs: <strong>${activeDevices}</strong><br>
+                            <details>
+                                <summary>Détails des équipements</summary>
+                                <pre>${JSON.stringify(networkDevices, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('test1').innerHTML = '<div class="error">❌ Erreur API Network Devices: ' + networkResponse.status + '</div>';
+                }
+                
+                // Test 2: API GNS3 Projects (pour comparaison)
+                results.innerHTML += '<div class="test-section info"><h3>2. Test API GNS3 Projects (/api/gns3/projects/)</h3><div id="test2">Chargement...</div></div>';
+                
+                const gns3Response = await fetch('http://localhost:8000/api/gns3/projects/', {
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin@hybrido.com:hybrido2025')
+                    }
+                });
+                
+                if (gns3Response.ok) {
+                    const gns3Projects = await gns3Response.json();
+                    const totalProjects = gns3Projects.length;
+                    const totalNodes = gns3Projects.reduce((acc, p) => acc + (p.nodes_count || 0), 0);
+                    
+                    document.getElementById('test2').innerHTML = `
+                        <div class="success">
+                            <strong>✅ API GNS3 Projects OK</strong><br>
+                            Total Projets: <strong>${totalProjects}</strong><br>
+                            Total Nœuds GNS3: <strong>${totalNodes}</strong><br>
+                            <details>
+                                <summary>Détails des projets</summary>
+                                <pre>${JSON.stringify(gns3Projects, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('test2').innerHTML = '<div class="error">❌ Erreur API GNS3 Projects: ' + gns3Response.status + '</div>';
+                }
+                
+                // Test 3: API Dashboard (pour vérifier totalEquipments)
+                results.innerHTML += '<div class="test-section info"><h3>3. Test API Dashboard (/api/dashboard/)</h3><div id="test3">Chargement...</div></div>';
+                
+                const dashboardResponse = await fetch('http://localhost:8000/api/dashboard/', {
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin@hybrido.com:hybrido2025')
+                    }
+                });
+                
+                if (dashboardResponse.ok) {
+                    const dashboardData = await dashboardResponse.json();
+                    
+                    document.getElementById('test3').innerHTML = `
+                        <div class="success">
+                            <strong>✅ API Dashboard OK</strong><br>
+                            totalEquipments dans Dashboard: <strong>${dashboardData.totalEquipments || 'null'}</strong><br>
+                            <details>
+                                <summary>Détails dashboard</summary>
+                                <pre>${JSON.stringify(dashboardData, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('test3').innerHTML = '<div class="error">❌ Erreur API Dashboard: ' + dashboardResponse.status + '</div>';
+                }
+                
+                // Conclusion
+                results.innerHTML += `
+                    <div class="test-section">
+                        <h3>🎯 Conclusion et Recommandations</h3>
+                        <div class="info">
+                            <h4>Configuration Correcte pour totalEquipments:</h4>
+                            <ul>
+                                <li>✅ Utiliser <strong>/api/network/devices/</strong> comme source principale</li>
+                                <li>✅ totalEquipments = nombre d'équipements réseau réels (${document.querySelector('#test1 strong:nth-child(2)')?.textContent || 'N/A'})</li>
+                                <li>✅ activeEquipments = équipements avec is_active=true</li>
+                                <li>⚠️ Les nœuds GNS3 sont séparés et ne doivent pas être comptés dans totalEquipments</li>
+                            </ul>
+                            <p><strong>Le système UnifiedApiSystem.js doit utiliser networkDevices.data.totalDevices au lieu de gns3Projects.data.totalNodes</strong></p>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                results.innerHTML += '<div class="test-section error"><h3>❌ Erreur générale</h3><pre>' + error.message + '</pre></div>';
+            }
+        }
+        
+        // Lancer les tests au chargement
+        window.onload = testApis;
+    </script>
+</body>
+</html>

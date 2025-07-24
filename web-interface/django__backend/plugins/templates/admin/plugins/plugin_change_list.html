@@ -1,0 +1,95 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static admin_list %}
+
+{% block content %}
+<div id="content-main">
+  <div class="module" id="changelist">
+    <div class="results">
+      <div class="plugin-types-filter">
+        <h3>{% trans "Types de plugins" %}</h3>
+        <ul>
+          <li><a href="?">{% trans "Tous" %}</a></li>
+          {% for type in plugin_types %}
+          <li><a href="?type={{ type }}">{{ type }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      
+      <table id="result_list">
+        <thead>
+          <tr>
+            <th>{% trans "ID" %}</th>
+            <th>{% trans "Nom" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Version" %}</th>
+            <th>{% trans "Description" %}</th>
+            <th>{% trans "Auteur" %}</th>
+            <th>{% trans "État" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for plugin in plugins %}
+          <tr class="{% cycle 'row1' 'row2' %}">
+            <td>{{ plugin.id|default:plugin.class_name }}</td>
+            <td>{{ plugin.name|default:plugin.class_name }}</td>
+            <td>{{ plugin.type }}</td>
+            <td>{{ plugin.version|default:"N/A" }}</td>
+            <td>{{ plugin.description|default:"Pas de description"|truncatechars:100 }}</td>
+            <td>{{ plugin.author|default:"N/A" }}</td>
+            <td>
+              {% if plugin.initialized %}
+              <img src="{% static 'admin/img/icon-yes.svg' %}" alt="Oui">
+              {% else %}
+              <img src="{% static 'admin/img/icon-no.svg' %}" alt="Non">
+              {% if plugin.error %}
+              <span class="plugin-error">{{ plugin.error }}</span>
+              {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7">{% trans "Aucun plugin enregistré" %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+.plugin-types-filter {
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 5px;
+}
+.plugin-types-filter ul {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0 0 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+.plugin-types-filter li {
+  margin-right: 15px;
+}
+.plugin-types-filter a {
+  display: inline-block;
+  padding: 5px 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.plugin-types-filter a:hover {
+  background: #f5f5f5;
+}
+.plugin-error {
+  color: red;
+  font-size: 0.8em;
+  margin-left: 5px;
+}
+</style>
+{% endblock %} 

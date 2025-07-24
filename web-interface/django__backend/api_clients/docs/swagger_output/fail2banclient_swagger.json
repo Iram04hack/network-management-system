@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Fail2Ban Client",
+    "description": "Client pour interagir avec l'API REST de Fail2Ban",
+    "version": "1.0.0"
+  },
+  "paths": {}
+}

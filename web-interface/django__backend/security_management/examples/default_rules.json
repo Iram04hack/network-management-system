@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Bloquer les tentatives de connexion SSH",
+    "description": "Bloque les adresses IP après 5 tentatives de connexion SSH échouées",
+    "rule_type": "fail2ban",
+    "content": "failregex = ^Authentication failure for .* from <HOST>\\s*$",
+    "action": "block",
+    "enabled": true,
+    "priority": 100,
+    "tags": ["ssh", "authentication"]
+  },
+  {
+    "name": "Détecter les scans de ports",
+    "description": "Détecte les tentatives de scan de ports",
+    "rule_type": "suricata",
+    "content": "alert tcp any any -> $HOME_NET any (msg:\"Port scan detected\"; flow:to_server; threshold: type threshold, track by_src, count 30, seconds 60; classtype:attempted-recon; sid:1000001; rev:1;)",
+    "action": "alert",
+    "enabled": true,
+    "priority": 80,
+    "tags": ["scan", "reconnaissance"]
+  },
+  {
+    "name": "Bloquer le trafic malveillant",
+    "description": "Bloque le trafic provenant d'adresses IP connues comme malveillantes",
+    "rule_type": "firewall",
+    "source_ip": "198.51.100.0/24",
+    "action": "block",
+    "enabled": true,
+    "priority": 50,
+    "tags": ["malicious", "blacklist"]
+  },
+  {
+    "name": "Détecter les attaques par force brute",
+    "description": "Détecte les tentatives d'attaque par force brute sur les services web",
+    "rule_type": "suricata",
+    "content": "alert http $EXTERNAL_NET any -> $HTTP_SERVERS any (msg:\"Possible brute force login attempt\"; flow:to_server,established; content:\"POST\"; http_method; content:\"/login\"; http_uri; threshold: type threshold, track by_src, count 20, seconds 60; classtype:attempted-admin; sid:1000002; rev:1;)",
+    "destination_port": "80",
+    "protocol": "tcp",
+    "action": "alert",
+    "enabled": true,
+    "priority": 70,
+    "tags": ["web", "brute-force"]
+  },
+  {
+    "name": "Limiter les connexions par IP",
+    "description": "Limite le nombre de connexions simultanées par adresse IP",
+    "rule_type": "access_control",
+    "content": "limit connections 20 per source_ip",
+    "action": "limit",
+    "enabled": true,
+    "priority": 60,
+    "tags": ["dos-protection", "rate-limiting"]
+  }
+] 

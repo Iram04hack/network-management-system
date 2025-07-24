@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API HAProxy Client",
+    "description": "\n    Client s\u00e9curis\u00e9 pour interagir avec HAProxy via socket de stats ou HTTP.\n    \n    Cette impl\u00e9mentation corrige les vuln\u00e9rabilit\u00e9s de s\u00e9curit\u00e9 identifi\u00e9es :\n    - Protection contre l'injection de commandes\n    - Validation stricte des param\u00e8tres d'entr\u00e9e\n    - Gestion s\u00e9curis\u00e9e des timeouts et des connexions\n    - Logging s\u00e9curis\u00e9 sans fuite d'informations sensibles\n    ",
+    "version": "1.0.0"
+  },
+  "paths": {}
+}

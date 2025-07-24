@@ -1,0 +1,794 @@
+swagger: '2.0'
+info:
+  title: API QoS Management
+  description: API pour la gestion de la Qualité de Service (QoS) réseau
+  version: '2.0.0'
+  contact:
+    name: Network Management System Team
+basePath: /api/qos
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+tags:
+  - name: Politiques
+    description: Opérations sur les politiques QoS
+  - name: Classes de trafic
+    description: Opérations sur les classes de trafic
+  - name: Interfaces
+    description: Opérations sur les interfaces et l'application des politiques
+  - name: Monitoring
+    description: Opérations de surveillance et rapports QoS
+  - name: Tests
+    description: Tests de conformité et simulation
+
+paths:
+  /policies:
+    get:
+      summary: Liste des politiques QoS
+      description: Récupère la liste de toutes les politiques QoS disponibles
+      tags:
+        - Politiques
+      responses:
+        '200':
+          description: Liste des politiques récupérée avec succès
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/QoSPolicy'
+    post:
+      summary: Créer une politique QoS
+      description: Crée une nouvelle politique QoS avec des classes de trafic optionnelles
+      tags:
+        - Politiques
+      parameters:
+        - name: policy
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/QoSPolicyCreate'
+      responses:
+        '201':
+          description: Politique créée avec succès
+          schema:
+            $ref: '#/definitions/QoSPolicy'
+        '400':
+          description: Données invalides
+  
+  /policies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID de la politique QoS
+    get:
+      summary: Détails d'une politique QoS
+      description: Récupère les détails d'une politique QoS spécifique
+      tags:
+        - Politiques
+      responses:
+        '200':
+          description: Politique récupérée avec succès
+          schema:
+            $ref: '#/definitions/QoSPolicy'
+        '404':
+          description: Politique non trouvée
+    put:
+      summary: Modifier une politique QoS
+      description: Met à jour une politique QoS existante
+      tags:
+        - Politiques
+      parameters:
+        - name: policy
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/QoSPolicyUpdate'
+      responses:
+        '200':
+          description: Politique mise à jour avec succès
+          schema:
+            $ref: '#/definitions/QoSPolicy'
+        '400':
+          description: Données invalides
+        '404':
+          description: Politique non trouvée
+    delete:
+      summary: Supprimer une politique QoS
+      description: Supprime une politique QoS existante
+      tags:
+        - Politiques
+      responses:
+        '204':
+          description: Politique supprimée avec succès
+        '404':
+          description: Politique non trouvée
+  
+  /policies/{id}/traffic_classes:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID de la politique QoS
+    get:
+      summary: Classes de trafic d'une politique
+      description: Récupère la liste des classes de trafic associées à une politique QoS
+      tags:
+        - Classes de trafic
+      responses:
+        '200':
+          description: Classes de trafic récupérées avec succès
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TrafficClass'
+        '404':
+          description: Politique non trouvée
+    post:
+      summary: Ajouter une classe de trafic
+      description: Ajoute une nouvelle classe de trafic à une politique QoS
+      tags:
+        - Classes de trafic
+      parameters:
+        - name: traffic_class
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TrafficClassCreate'
+      responses:
+        '201':
+          description: Classe de trafic créée avec succès
+          schema:
+            $ref: '#/definitions/TrafficClass'
+        '400':
+          description: Données invalides
+        '404':
+          description: Politique non trouvée
+  
+  /policies/{id}/apply_to_interface:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID de la politique QoS
+    post:
+      summary: Appliquer une politique à une interface
+      description: Applique une politique QoS à une interface réseau spécifique
+      tags:
+        - Interfaces
+      parameters:
+        - name: interface_data
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              interface_id:
+                type: integer
+                description: ID de l'interface réseau
+              direction:
+                type: string
+                enum: [ingress, egress]
+                description: Direction du trafic (entrant ou sortant)
+            required:
+              - interface_id
+              - direction
+      responses:
+        '201':
+          description: Politique appliquée avec succès
+          schema:
+            $ref: '#/definitions/InterfaceQoSPolicy'
+        '400':
+          description: Données invalides
+        '404':
+          description: Politique ou interface non trouvée
+  
+  /interface_policies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID de la politique QoS appliquée à l'interface
+    get:
+      summary: Détails d'une politique appliquée
+      description: Récupère les détails d'une politique QoS appliquée à une interface
+      tags:
+        - Interfaces
+      responses:
+        '200':
+          description: Détails récupérés avec succès
+          schema:
+            $ref: '#/definitions/InterfaceQoSPolicy'
+        '404':
+          description: Politique appliquée non trouvée
+  
+  /interface_policies/{id}/toggle_status:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID de la politique QoS appliquée à l'interface
+    post:
+      summary: Activer/désactiver une politique appliquée
+      description: Active ou désactive une politique QoS appliquée à une interface
+      tags:
+        - Interfaces
+      responses:
+        '200':
+          description: Statut modifié avec succès
+          schema:
+            $ref: '#/definitions/InterfaceQoSPolicy'
+        '404':
+          description: Politique appliquée non trouvée
+  
+  /interface_policies/{id}/remove:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID de la politique QoS appliquée à l'interface
+    delete:
+      summary: Supprimer une politique appliquée
+      description: Supprime une politique QoS appliquée à une interface
+      tags:
+        - Interfaces
+      responses:
+        '204':
+          description: Politique supprimée avec succès
+        '404':
+          description: Politique appliquée non trouvée
+  
+  /visualization/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        description: ID de la politique QoS
+    get:
+      summary: Visualisation d'une politique QoS
+      description: Récupère les données de visualisation pour une politique QoS
+      tags:
+        - Monitoring
+      responses:
+        '200':
+          description: Données de visualisation récupérées avec succès
+          schema:
+            $ref: '#/definitions/QoSVisualization'
+        '404':
+          description: Politique non trouvée
+  
+  /sla/compliance:
+    get:
+      summary: Rapport de conformité SLA
+      description: Récupère le rapport de conformité SLA pour les politiques QoS
+      tags:
+        - Monitoring
+      parameters:
+        - name: start_date
+          in: query
+          type: string
+          format: date-time
+          description: Date de début pour le rapport
+        - name: end_date
+          in: query
+          type: string
+          format: date-time
+          description: Date de fin pour le rapport
+      responses:
+        '200':
+          description: Rapport récupéré avec succès
+          schema:
+            $ref: '#/definitions/SLAComplianceReport'
+  
+  /sla/performance:
+    get:
+      summary: Rapport de performance QoS
+      description: Récupère le rapport de performance QoS
+      tags:
+        - Monitoring
+      parameters:
+        - name: start_date
+          in: query
+          type: string
+          format: date-time
+          description: Date de début pour le rapport
+        - name: end_date
+          in: query
+          type: string
+          format: date-time
+          description: Date de fin pour le rapport
+      responses:
+        '200':
+          description: Rapport récupéré avec succès
+          schema:
+            $ref: '#/definitions/QoSPerformanceReport'
+  
+  /compliance-tests:
+    post:
+      summary: Exécuter un test de conformité
+      description: Exécute un test de conformité pour une politique QoS
+      tags:
+        - Tests
+      parameters:
+        - name: test_scenario
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/QoSTestScenario'
+      responses:
+        '201':
+          description: Test démarré avec succès
+          schema:
+            type: object
+            properties:
+              test_id:
+                type: string
+                description: Identifiant du test
+        '400':
+          description: Données invalides
+    get:
+      summary: Liste des tests de conformité
+      description: Récupère la liste des tests de conformité
+      tags:
+        - Tests
+      responses:
+        '200':
+          description: Liste des tests récupérée avec succès
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/QoSTestResult'
+  
+  /compliance-tests/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: ID du test de conformité
+    get:
+      summary: Résultat d'un test
+      description: Récupère le résultat d'un test de conformité
+      tags:
+        - Tests
+      responses:
+        '200':
+          description: Résultat récupéré avec succès
+          schema:
+            $ref: '#/definitions/QoSTestResult'
+        '404':
+          description: Test non trouvé
+    delete:
+      summary: Arrêter un test
+      description: Arrête un test de conformité en cours
+      tags:
+        - Tests
+      responses:
+        '204':
+          description: Test arrêté avec succès
+        '404':
+          description: Test non trouvé
+
+definitions:
+  QoSPolicy:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Identifiant unique de la politique
+      name:
+        type: string
+        description: Nom de la politique
+      description:
+        type: string
+        description: Description de la politique
+      is_active:
+        type: boolean
+        description: Indique si la politique est active
+      created_at:
+        type: string
+        format: date-time
+        description: Date de création
+      updated_at:
+        type: string
+        format: date-time
+        description: Date de dernière mise à jour
+      traffic_classes_count:
+        type: integer
+        description: Nombre de classes de trafic associées
+    required:
+      - id
+      - name
+      - is_active
+  
+  QoSPolicyCreate:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Nom de la politique
+      description:
+        type: string
+        description: Description de la politique
+      is_active:
+        type: boolean
+        description: Indique si la politique est active
+      traffic_classes:
+        type: array
+        items:
+          $ref: '#/definitions/TrafficClassCreate'
+        description: Classes de trafic à créer avec la politique
+    required:
+      - name
+  
+  QoSPolicyUpdate:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Nom de la politique
+      description:
+        type: string
+        description: Description de la politique
+      is_active:
+        type: boolean
+        description: Indique si la politique est active
+  
+  TrafficClass:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Identifiant unique de la classe
+      policy:
+        type: integer
+        description: ID de la politique parente
+      name:
+        type: string
+        description: Nom de la classe
+      description:
+        type: string
+        description: Description de la classe
+      dscp:
+        type: string
+        description: Valeur DSCP pour le marquage
+      priority:
+        type: integer
+        description: Priorité de la classe (0-15)
+      min_bandwidth:
+        type: integer
+        description: Bande passante minimale garantie (Kbps)
+      max_bandwidth:
+        type: integer
+        description: Bande passante maximale (Kbps)
+      traffic_classifiers:
+        type: array
+        items:
+          $ref: '#/definitions/TrafficClassifier'
+        description: Classificateurs de trafic associés
+    required:
+      - id
+      - policy
+      - name
+      - priority
+  
+  TrafficClassCreate:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Nom de la classe
+      description:
+        type: string
+        description: Description de la classe
+      dscp:
+        type: string
+        description: Valeur DSCP pour le marquage
+      priority:
+        type: integer
+        description: Priorité de la classe (0-15)
+      min_bandwidth:
+        type: integer
+        description: Bande passante minimale garantie (Kbps)
+      max_bandwidth:
+        type: integer
+        description: Bande passante maximale (Kbps)
+      traffic_classifiers:
+        type: array
+        items:
+          $ref: '#/definitions/TrafficClassifierCreate'
+        description: Classificateurs de trafic à créer
+    required:
+      - name
+      - priority
+  
+  TrafficClassifier:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Identifiant unique du classificateur
+      traffic_class:
+        type: integer
+        description: ID de la classe parente
+      name:
+        type: string
+        description: Nom du classificateur
+      protocol:
+        type: string
+        enum: [tcp, udp, icmp, any]
+        description: Protocole réseau
+      source_ip_start:
+        type: string
+        description: Adresse IP source de début
+      source_ip_end:
+        type: string
+        description: Adresse IP source de fin
+      destination_ip_start:
+        type: string
+        description: Adresse IP destination de début
+      destination_ip_end:
+        type: string
+        description: Adresse IP destination de fin
+      source_port_start:
+        type: integer
+        description: Port source de début
+      source_port_end:
+        type: integer
+        description: Port source de fin
+      destination_port_start:
+        type: integer
+        description: Port destination de début
+      destination_port_end:
+        type: integer
+        description: Port destination de fin
+      dscp_marking:
+        type: string
+        description: Valeur DSCP pour le marquage
+    required:
+      - id
+      - traffic_class
+      - name
+  
+  TrafficClassifierCreate:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Nom du classificateur
+      protocol:
+        type: string
+        enum: [tcp, udp, icmp, any]
+        description: Protocole réseau
+      source_ip_start:
+        type: string
+        description: Adresse IP source de début
+      source_ip_end:
+        type: string
+        description: Adresse IP source de fin
+      destination_ip_start:
+        type: string
+        description: Adresse IP destination de début
+      destination_ip_end:
+        type: string
+        description: Adresse IP destination de fin
+      source_port_start:
+        type: integer
+        description: Port source de début
+      source_port_end:
+        type: integer
+        description: Port source de fin
+      destination_port_start:
+        type: integer
+        description: Port destination de début
+      destination_port_end:
+        type: integer
+        description: Port destination de fin
+      dscp_marking:
+        type: string
+        description: Valeur DSCP pour le marquage
+    required:
+      - name
+  
+  InterfaceQoSPolicy:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Identifiant unique
+      interface:
+        type: integer
+        description: ID de l'interface réseau
+      policy:
+        type: integer
+        description: ID de la politique QoS
+      direction:
+        type: string
+        enum: [ingress, egress]
+        description: Direction du trafic
+      is_active:
+        type: boolean
+        description: Indique si la politique est active sur l'interface
+      applied_at:
+        type: string
+        format: date-time
+        description: Date d'application
+      status:
+        type: string
+        description: Statut de l'application de la politique
+    required:
+      - id
+      - interface
+      - policy
+      - direction
+      - is_active
+  
+  QoSVisualization:
+    type: object
+    properties:
+      policy:
+        $ref: '#/definitions/QoSPolicy'
+      traffic_classes:
+        type: array
+        items:
+          $ref: '#/definitions/TrafficClass'
+      traffic_data:
+        type: object
+        description: Données de trafic pour la visualisation
+  
+  SLAComplianceReport:
+    type: object
+    properties:
+      start_date:
+        type: string
+        format: date-time
+      end_date:
+        type: string
+        format: date-time
+      overall_compliance:
+        type: number
+        format: float
+      policies:
+        type: array
+        items:
+          type: object
+          properties:
+            policy_id:
+              type: integer
+            policy_name:
+              type: string
+            compliance:
+              type: number
+              format: float
+            metrics:
+              type: object
+  
+  QoSPerformanceReport:
+    type: object
+    properties:
+      start_date:
+        type: string
+        format: date-time
+      end_date:
+        type: string
+        format: date-time
+      interfaces:
+        type: array
+        items:
+          type: object
+          properties:
+            interface_id:
+              type: integer
+            interface_name:
+              type: string
+            policy_id:
+              type: integer
+            policy_name:
+              type: string
+            metrics:
+              type: object
+              properties:
+                latency:
+                  type: number
+                  format: float
+                jitter:
+                  type: number
+                  format: float
+                packet_loss:
+                  type: number
+                  format: float
+                throughput:
+                  type: number
+                  format: float
+  
+  QoSTestScenario:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Nom du scénario de test
+      description:
+        type: string
+        description: Description du scénario
+      duration_seconds:
+        type: integer
+        description: Durée du test en secondes
+      traffic_profiles:
+        type: array
+        items:
+          $ref: '#/definitions/TrafficProfile'
+      success_criteria:
+        type: object
+        description: Critères de réussite du test
+    required:
+      - name
+      - traffic_profiles
+  
+  TrafficProfile:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Nom du profil de trafic
+      bandwidth_mbps:
+        type: number
+        format: float
+        description: Bande passante en Mbps
+      packet_size_bytes:
+        type: integer
+        description: Taille des paquets en octets
+      duration_seconds:
+        type: integer
+        description: Durée du profil en secondes
+      protocol:
+        type: string
+        enum: [tcp, udp]
+        description: Protocole utilisé
+      dscp:
+        type: string
+        description: Valeur DSCP pour le marquage
+      priority:
+        type: integer
+        description: Priorité du trafic
+      burst_factor:
+        type: number
+        format: float
+        description: Facteur de burst (1.0 = constant)
+    required:
+      - name
+      - bandwidth_mbps
+  
+  QoSTestResult:
+    type: object
+    properties:
+      scenario_name:
+        type: string
+      status:
+        type: string
+        enum: [not_started, running, completed, failed, aborted]
+      start_time:
+        type: string
+        format: date-time
+      end_time:
+        type: string
+        format: date-time
+      metrics:
+        type: object
+      success:
+        type: boolean
+      details:
+        type: object
+    required:
+      - scenario_name
+      - status 

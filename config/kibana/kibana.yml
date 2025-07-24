@@ -1,0 +1,2 @@
+elasticsearch.hosts: ["http://192.168.10.3:9200"]
+server.host: "0.0.0.0"

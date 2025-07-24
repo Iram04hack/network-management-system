@@ -1,0 +1,24 @@
+#
+# Custom protocol definitions for nDPI
+#
+# Format:
+#
+# [hostname|ip]:[port],[TCP|UDP],[protocol name],[category name]
+#
+
+# Services Django
+*:8000,TCP,Django API,Web
+
+# Services de monitoring
+*:19999,TCP,Netdata,Monitoring
+*:3000,TCP,Grafana,Monitoring
+*:9090,TCP,Prometheus,Monitoring
+*:5601,TCP,Kibana,Monitoring
+
+# Services de base de données
+*:5432,TCP,PostgreSQL,Database
+*:6379,TCP,Redis,Database
+*:9200,TCP,Elasticsearch,Database
+
+# Services de sécurité
+*:55000,TCP,Suricata API,Security 

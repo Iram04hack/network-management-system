@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Connexion Frontend ↔ Backend</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        button { 
+            margin: 5px; 
+            padding: 10px; 
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { 
+            background: #e9e9e9; 
+        }
+        button:active { 
+            background: #d9d9d9; 
+        }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔗 Test Connexion Frontend ↔ Backend</h1>
+    
+    <div class="test-section">
+        <h2>Configuration actuelle</h2>
+        <div id="config"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Tests de connexion</h2>
+        <button onclick="testJavaScript()">🧪 Test JavaScript</button>
+        <button onclick="testAllEndpoints()">🚀 Tester tous les endpoints</button>
+        <button onclick="testConversations()">💬 Test Conversations</button>
+        <button onclick="testCommands()">⚡ Test Commands</button>
+        <button onclick="testDocuments()">📄 Test Documents</button>
+        <button onclick="testSearch()">🔍 Test Search</button>
+        <button onclick="clearResults()">🗑️ Effacer</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Résultats des tests</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Configuration API (utilise le proxy Vite)
+        const API_CONFIG = {
+            baseURL: '/api/ai',
+            username: 'admin',
+            password: 'admin'
+        };
+
+        // Afficher la configuration
+        document.getElementById('config').innerHTML = `
+            <strong>API URL:</strong> ${API_CONFIG.baseURL}<br>
+            <strong>Username:</strong> ${API_CONFIG.username}<br>
+            <strong>Frontend:</strong> ${window.location.origin}
+        `;
+
+        // Fonction pour récupérer un cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Test JavaScript
+        function testJavaScript() {
+            console.log('🧪 Test JavaScript démarré');
+            const results = document.getElementById('results');
+            results.innerHTML = `
+                <div style="color: blue; padding: 10px; border: 1px solid blue; margin: 10px 0;">
+                    <h3>🧪 Test JavaScript</h3>
+                    <p>✅ JavaScript fonctionne correctement !</p>
+                    <p>📅 Timestamp: ${new Date().toISOString()}</p>
+                    <p>🌐 User Agent: ${navigator.userAgent}</p>
+                    <p>📍 URL actuelle: ${window.location.href}</p>
+                </div>
+            `;
+            alert('🧪 JavaScript fonctionne ! Regardez les résultats ci-dessous.');
+        }
+
+        // Fonction de test générique
+        async function testAPI(endpoint, method = 'GET', data = null, description = '') {
+            const startTime = Date.now();
+            const credentials = btoa(`${API_CONFIG.username}:${API_CONFIG.password}`);
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.innerHTML = `<h3>🔄 Test: ${description || endpoint}</h3>`;
+            document.getElementById('results').appendChild(resultDiv);
+            
+            try {
+                const url = `${API_CONFIG.baseURL}/${endpoint}`;
+                console.log(`🔗 Tentative de connexion à: ${url}`);
+                
+                // Headers pour la requête
+                const headers = {
+                    'Authorization': `Basic ${credentials}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                };
+                
+                // Pour les requêtes POST, ajouter les headers CSRF et autres
+                if (method === 'POST') {
+                    headers['X-Requested-With'] = 'XMLHttpRequest';
+                    // Essayer de récupérer le CSRF token des cookies
+                    const csrfToken = getCookie('csrftoken');
+                    if (csrfToken) {
+                        headers['X-CSRFToken'] = csrfToken;
+                    }
+                }
+                
+                console.log(`📋 Method: ${method}, Headers:`, headers);
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: headers,
+                    body: data ? JSON.stringify(data) : null,
+                    credentials: 'include', // Inclure les cookies pour CSRF
+                });
+                
+                const responseTime = Date.now() - startTime;
+                const result = await response.text();
+                let parsedResult;
+                
+                try {
+                    parsedResult = JSON.parse(result);
+                } catch (e) {
+                    parsedResult = result;
+                }
+                
+                if (response.ok) {
+                    resultDiv.innerHTML += `
+                        <div class="success">
+                            ✅ <strong>SUCCÈS</strong> (${response.status}) - ${responseTime}ms<br>
+                            <strong>URL:</strong> ${url}<br>
+                            <strong>Response:</strong>
+                            <pre>${JSON.stringify(parsedResult, null, 2)}</pre>
+                        </div>
+                    `;
+                    return { success: true, data: parsedResult, status: response.status };
+                } else {
+                    resultDiv.innerHTML += `
+                        <div class="error">
+                            ❌ <strong>ERREUR HTTP</strong> (${response.status}) - ${responseTime}ms<br>
+                            <strong>URL:</strong> ${url}<br>
+                            <strong>Response:</strong>
+                            <pre>${JSON.stringify(parsedResult, null, 2)}</pre>
+                        </div>
+                    `;
+                    return { success: false, error: `HTTP ${response.status}`, data: parsedResult };
+                }
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                console.error('❌ Erreur de connexion:', error);
+                
+                resultDiv.innerHTML += `
+                    <div class="error">
+                        ❌ <strong>ERREUR DE CONNEXION</strong> - ${responseTime}ms<br>
+                        <strong>URL:</strong> ${API_CONFIG.baseURL}/${endpoint}<br>
+                        <strong>Erreur:</strong> ${error.message}<br>
+                        <strong>Type:</strong> ${error.name}
+                    </div>
+                `;
+                
+                // Diagnostics spécifiques
+                if (error.message.includes('CORS')) {
+                    resultDiv.innerHTML += `
+                        <div class="warning">
+                            ⚠️ <strong>Problème CORS détecté</strong><br>
+                            Le backend doit autoriser les requêtes depuis ${window.location.origin}
+                        </div>
+                    `;
+                }
+                
+                if (error.message.includes('certificate') || error.message.includes('SSL')) {
+                    resultDiv.innerHTML += `
+                        <div class="warning">
+                            ⚠️ <strong>Problème SSL détecté</strong><br>
+                            Certificat auto-signé rejeté par le navigateur
+                        </div>
+                    `;
+                }
+                
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Tests spécifiques
+        async function testConversations() {
+            await testAPI('conversations/', 'GET', null, 'Liste des conversations');
+        }
+
+        async function testCommands() {
+            await testAPI('commands/', 'GET', null, 'Liste des commandes');
+        }
+
+        async function testDocuments() {
+            await testAPI('documents/', 'GET', null, 'Liste des documents');
+        }
+
+        async function testSearch() {
+            await testAPI('search/?q=test', 'GET', null, 'Recherche globale');
+        }
+
+        async function testCreateConversation() {
+            const data = {
+                title: 'Test Frontend Connection',
+                metadata: { source: 'frontend_test', timestamp: new Date().toISOString() }
+            };
+            await testAPI('conversations/', 'POST', data, 'Création conversation');
+        }
+
+        async function testExecuteCommand() {
+            const data = {
+                name: 'test_frontend_connection',
+                parameters: { source: 'frontend', timestamp: new Date().toISOString() }
+            };
+            await testAPI('commands/', 'POST', data, 'Exécution commande');
+        }
+
+        // Fonction pour obtenir le CSRF token
+        async function getCSRFToken() {
+            try {
+                const response = await fetch('/api/ai/conversations/', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                console.log('🔐 CSRF Token récupéré via cookies:', getCookie('csrftoken'));
+                return getCookie('csrftoken');
+            } catch (error) {
+                console.log('⚠️ Impossible de récupérer CSRF token:', error);
+                return null;
+            }
+        }
+
+        // Test complet
+        async function testAllEndpoints() {
+            clearResults();
+            console.log('🚀 Début des tests de connexion...');
+            
+            // Essayer de récupérer le CSRF token d'abord
+            await getCSRFToken();
+            
+            const tests = [
+                () => testConversations(),
+                () => testCommands(),
+                () => testDocuments(),
+                () => testSearch(),
+                () => testCreateConversation(),
+                () => testExecuteCommand()
+            ];
+            
+            for (let i = 0; i < tests.length; i++) {
+                console.log(`📋 Test ${i + 1}/${tests.length}`);
+                await tests[i]();
+                await new Promise(resolve => setTimeout(resolve, 500)); // Pause entre tests
+            }
+            
+            console.log('✅ Tests terminés');
+        }
+
+        function clearResults() {
+            console.log('🗑️ Tentative d\'effacement des résultats...');
+            const resultsElement = document.getElementById('results');
+            
+            if (resultsElement) {
+                resultsElement.innerHTML = '';
+                console.log('✅ Résultats effacés avec succès');
+                
+                // Afficher une confirmation visuelle
+                resultsElement.innerHTML = '<div style="color: green; padding: 10px; font-weight: bold;">🗑️ Résultats effacés !</div>';
+                
+                // Effacer la confirmation après 2 secondes
+                setTimeout(() => {
+                    resultsElement.innerHTML = '';
+                }, 2000);
+            } else {
+                console.error('❌ Élément "results" non trouvé !');
+            }
+        }
+
+        // Test automatique au chargement
+        window.addEventListener('load', () => {
+            console.log('🔗 Page de test chargée');
+            console.log('🌐 Origine:', window.location.origin);
+            console.log('🎯 API cible:', API_CONFIG.baseURL);
+        });
+    </script>
+</body>
+</html>

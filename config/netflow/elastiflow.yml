@@ -1,0 +1,195 @@
+# ElastiFlow Configuration for NMS API_CLIENTS Module
+# Configuration pour le module api_clients avec données Netflow réelles
+
+elastiflow:
+  # Netflow configuration for real data collection
+  netflow:
+    udp:
+      port: 9995
+      workers: 2
+      read_buffer: 212992
+      bind: "0.0.0.0"
+    
+    # Template cache for real flow parsing
+    template_cache_size: 4096
+    
+    # Flow timeout for real data processing
+    flow_timeout: 300
+    
+    # Real data validation
+    validate_flows: true
+    
+  # sFlow configuration for comprehensive testing
+  sflow:
+    udp:
+      port: 6343
+      workers: 1
+      read_buffer: 212992
+      bind: "0.0.0.0"
+    
+  # IPFIX configuration for modern flow testing
+  ipfix:
+    udp:
+      port: 4739
+      workers: 1
+      read_buffer: 212992
+      bind: "0.0.0.0"
+
+  # Elasticsearch configuration for real data storage
+  elasticsearch:
+    hosts: ["elasticsearch:9200"]
+    
+    # Index configuration for NMS API_CLIENTS
+    index:
+      template:
+        name: "nms-api-clients-elastiflow"
+        pattern: "nms-api-clients-elastiflow-*"
+        settings:
+          number_of_shards: 1
+          number_of_replicas: 0
+          refresh_interval: "10s"
+          max_result_window: 100000
+        
+        mappings:
+          properties:
+            "@timestamp":
+              type: "date"
+            "netflow":
+              properties:
+                "src_addr":
+                  type: "ip"
+                "dst_addr":
+                  type: "ip"
+                "src_port":
+                  type: "integer"
+                "dst_port":
+                  type: "integer"
+                "protocol":
+                  type: "keyword"
+                "bytes":
+                  type: "long"
+                "packets":
+                  type: "long"
+                "flow_start":
+                  type: "date"
+                "flow_end":
+                  type: "date"
+    
+    # Bulk configuration for real data performance
+    bulk:
+      actions: 1000
+      size: "5MB"
+      flush_interval: "10s"
+
+  # Kibana configuration for visualization
+  kibana:
+    host: "0.0.0.0"
+    port: 5601
+    
+    # Dashboard configuration for NMS API_CLIENTS
+    dashboards:
+      enabled: true
+      path: "/usr/share/elastiflow/kibana"
+
+  # Data enrichment for real network intelligence
+  enrichment:
+    # GeoIP enrichment for real location data
+    geoip:
+      enabled: true
+      database_path: "/usr/share/GeoIP"
+    
+    # ASN enrichment for real network data
+    asn:
+      enabled: true
+      database_path: "/usr/share/GeoIP"
+    
+    # DNS resolution for real hostname data
+    dns:
+      enabled: true
+      cache_size: 10000
+      cache_ttl: 3600
+
+  # Flow processing for real data analysis
+  processing:
+    # Sampling for high-volume real data
+    sampling:
+      enabled: true
+      rate: 1000
+    
+    # Aggregation for real data summarization
+    aggregation:
+      enabled: true
+      interval: "60s"
+      fields: ["src_addr", "dst_addr", "src_port", "dst_port", "protocol"]
+    
+    # Filtering for real data quality
+    filtering:
+      # Exclude private networks if needed
+      exclude_private: false
+      
+      # Minimum flow duration for real data
+      min_duration: 1
+      
+      # Minimum bytes for real data
+      min_bytes: 64
+
+  # Alerting for real-time monitoring
+  alerting:
+    enabled: true
+    
+    # Thresholds for real data anomalies
+    thresholds:
+      high_bandwidth: 1000000000  # 1 Gbps
+      high_packet_rate: 100000    # 100k pps
+      suspicious_ports: [22, 23, 135, 139, 445, 1433, 3389]
+    
+    # Notification configuration
+    notifications:
+      elasticsearch:
+        enabled: true
+        index: "nms-api-clients-elastiflow-alerts"
+
+# Logging configuration for debugging
+logging:
+  level: INFO
+  to_files: true
+  files:
+    path: /var/log/elastiflow
+    name: nms-api-clients-elastiflow.log
+    rotateeverybytes: 10485760
+    keepfiles: 7
+  
+  # Log real data processing statistics
+  loggers:
+    netflow: INFO
+    sflow: INFO
+    ipfix: INFO
+    elasticsearch: INFO
+
+# Performance tuning for real data processing
+performance:
+  # Memory settings
+  heap_size: "512m"
+  
+  # Thread settings
+  workers: 2
+  
+  # Buffer settings
+  input_buffer_size: 1048576
+  output_buffer_size: 1048576
+  
+  # Batch settings
+  batch_size: 1000
+  batch_timeout: "5s"
+
+# Security settings for production-like testing
+security:
+  # SSL/TLS configuration
+  ssl:
+    enabled: false  # Disabled for testing
+    certificate: "/etc/ssl/certs/elastiflow.crt"
+    private_key: "/etc/ssl/private/elastiflow.key"
+  
+  # Authentication (disabled for testing)
+  authentication:
+    enabled: false

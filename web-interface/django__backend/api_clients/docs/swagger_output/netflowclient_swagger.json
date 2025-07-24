@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Netflow Client",
+    "description": "\n    Client pour analyser les donn\u00e9es NetFlow.\n    \n    Ce client permet d'interroger et d'analyser les flux r\u00e9seau collect\u00e9s\n    via NetFlow/sFlow avec validation s\u00e9curis\u00e9e des param\u00e8tres.\n    ",
+    "version": "1.0.0"
+  },
+  "paths": {}
+}

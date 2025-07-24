@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API ntopng Client",
+    "description": "Client pour interagir avec l'API REST de ntopng",
+    "version": "1.0.0"
+  },
+  "paths": {}
+}

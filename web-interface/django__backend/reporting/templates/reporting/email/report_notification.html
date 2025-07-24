@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport NMS Disponible</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .report-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .report-info h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        .meta-item {
+            text-align: center;
+        }
+        .meta-label {
+            font-weight: bold;
+            color: #34495e;
+            display: block;
+        }
+        .meta-value {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .download-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .download-button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .download-button:hover {
+            background-color: #2980b9;
+        }
+        .footer {
+            background-color: #ecf0f1;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📊 NMS</div>
+            <h1>Rapport Disponible</h1>
+        </div>
+        
+        <div class="content">
+            <p>Bonjour {{ recipient }},</p>
+            
+            <p>Un nouveau rapport a été généré et est maintenant disponible.</p>
+            
+            <div class="report-info">
+                <h2>{{ report.title }}</h2>
+                <p><strong>Type:</strong> {{ report.report_type|default:"Rapport standard" }}</p>
+                <p><strong>Description:</strong> {{ report.description|default:"Aucune description disponible" }}</p>
+                
+                <div class="report-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Généré le</span>
+                        <span class="meta-value">{{ report.created_at|default:"Maintenant" }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Format</span>
+                        <span class="meta-value">{{ report.format|default:"PDF" }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Taille</span>
+                        <span class="meta-value">{{ report.file_size|filesizeformat|default:"N/A" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            {% if report.url %}
+            <div class="download-section">
+                <a href="{{ report.url }}" class="download-button">📥 Télécharger le rapport</a>
+            </div>
+            {% endif %}
+            
+            <p>Le rapport est également joint à cet email pour votre commodité.</p>
+            
+            <p>Si vous avez des questions concernant ce rapport, n'hésitez pas à contacter l'équipe NMS.</p>
+            
+            <p>Cordialement,<br>
+            L'équipe NMS</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Network Management System (NMS) - Système de gestion de réseau</p>
+            <p>Cet email a été généré automatiquement. Merci de ne pas répondre à cette adresse.</p>
+        </div>
+    </div>
+</body>
+</html>

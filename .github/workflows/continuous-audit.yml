@@ -1,0 +1,91 @@
+name: Continuous Code Audit
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: [ 'web-interface/django_backend/**' ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 1'  # Lundi 2h du matin
+
+jobs:
+  audit-changes:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Historique complet pour diff
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install Audit System
+      run: |
+        chmod +x install_audit_system.sh
+        ./install_audit_system.sh
+    
+    - name: Detect Changed Modules
+      id: changes
+      run: |
+        # Détecter modules modifiés dans cette PR/push
+        CHANGED_FILES=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }})
+        CHANGED_MODULES=$(echo "$CHANGED_FILES" | grep "web-interface/django_backend/" | cut -d'/' -f3 | sort -u)
+        echo "modules=$CHANGED_MODULES" >> $GITHUB_OUTPUT
+    
+    - name: Audit Changed Modules
+      run: |
+        source audit/audit_tools_env/bin/activate
+        for module in ${{ steps.changes.outputs.modules }}; do
+          if [ "$module" != "__pycache__" ] && [ -d "web-interface/django_backend/$module" ]; then
+            echo "🔍 Audit module: $module"
+            python audit/audit_pipeline/main.py audit $module --format json
+          fi
+        done
+    
+    - name: Check Quality Gates
+      run: |
+        source audit/audit_tools_env/bin/activate
+        python audit/audit_pipeline/utils/quality_gate_checker.py --threshold 70 --reports audit/audit_reports/
+    
+    - name: Upload Audit Reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: audit-reports-${{ github.sha }}
+        path: audit/audit_reports/
+        retention-days: 30
+
+  full-audit:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install Audit System
+      run: ./install_audit_system.sh
+    
+    - name: Full System Audit
+      run: |
+        source audit/audit_tools_env/bin/activate
+        python audit/audit_pipeline/main.py audit-all --parallel
+    
+    - name: Generate Trend Report
+      run: |
+        source audit/audit_tools_env/bin/activate
+        python audit/audit_pipeline/utils/trend_analyzer.py --period 30days
+    
+    - name: Upload Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: full-audit-report-${{ github.run_number }}
+        path: audit/audit_reports/ 

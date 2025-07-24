@@ -1,0 +1,30 @@
+[DEFAULT]
+ignoreip = 127.0.0.1/8 ::1
+bantime = 3600
+findtime = 600
+maxretry = 5
+backend = auto
+banaction = iptables-multiport
+
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+
+[django-auth]
+enabled = true
+port = http,https
+filter = django-auth
+logpath = /data/django/logs/auth.log
+maxretry = 5
+bantime = 7200
+
+[suricata]
+enabled = true
+port = all
+filter = suricata
+logpath = /data/suricata/fast.log
+maxretry = 3
+bantime = 10800

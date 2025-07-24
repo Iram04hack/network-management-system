@@ -1,0 +1,95 @@
+/* LoadingSpinner.css */
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.loading-spinner-icon {
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner-icon.small {
+  width: 16px;
+  height: 16px;
+  border-width: 1px;
+}
+
+.loading-spinner-icon.medium {
+  width: 24px;
+  height: 24px;
+}
+
+.loading-spinner-icon.large {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.loading-spinner-text {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.loading-spinner-text.small {
+  font-size: 12px;
+}
+
+.loading-spinner-text.large {
+  font-size: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Variantes de couleur */
+.loading-spinner.primary .loading-spinner-icon {
+  border-top-color: #3b82f6;
+}
+
+.loading-spinner.success .loading-spinner-icon {
+  border-top-color: #10b981;
+}
+
+.loading-spinner.warning .loading-spinner-icon {
+  border-top-color: #f59e0b;
+}
+
+.loading-spinner.error .loading-spinner-icon {
+  border-top-color: #ef4444;
+}
+
+/* Overlay pour les spinners en plein écran */
+.loading-spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner-overlay.dark {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.loading-spinner-overlay .loading-spinner-text {
+  color: #374151;
+}
+
+.loading-spinner-overlay.dark .loading-spinner-text {
+  color: #f9fafb;
+}

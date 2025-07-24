@@ -1,0 +1,66 @@
+/* ConversationFilters.css */
+
+.conversation-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.conversation-filters-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conversation-filters-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.conversation-filters-select {
+  min-width: 120px;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+}
+
+.conversation-filters-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.conversation-filters-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.conversation-filters-clear {
+  padding: 6px 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.conversation-filters-clear:hover {
+  background: #dc2626;
+}
+
+.conversation-filters-clear:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}

@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Suricata Client",
+    "description": "Client pour interagir avec l'API REST de Suricata via Eve-NG",
+    "version": "1.0.0"
+  },
+  "paths": {}
+}

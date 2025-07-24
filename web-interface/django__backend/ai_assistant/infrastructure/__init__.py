@@ -1,0 +1,1 @@
+# Infrastructure package pour le module AI Assistant

@@ -1,0 +1,135 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nms-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+      - ./data/prometheus:/prometheus
+    networks:
+      - nms-backend
+      - nms-frontend
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nms-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+      - ./config/grafana:/etc/grafana
+    networks:
+      - nms-backend
+      - nms-frontend
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  netdata:
+    image: netdata/netdata:latest
+    container_name: nms-netdata
+    restart: unless-stopped
+    hostname: nms-netdata
+    ports:
+      - "19999:19999"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/netdata:/etc/netdata
+    environment:
+      - NETDATA_CLAIM_TOKEN=
+      - NETDATA_CLAIM_URL=https://app.netdata.cloud
+    networks:
+      - nms-backend
+      - nms-frontend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:19999/api/v1/info || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  ntopng:
+    image: ntop/ntopng:latest
+    container_name: nms-ntopng
+    restart: unless-stopped
+    networks:
+      - nms-backend
+      - nms-frontend
+    ports:
+      - "3000:3000"
+    command: --community
+    volumes:
+      - ./config/ntopng:/etc/ntopng
+      - ./data/ntopng:/var/lib/ntopng
+    environment:
+      - NTOPNG_CONFIG_FILE=/etc/ntopng/ntopng.conf
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  haproxy:
+    image: haproxy:latest
+    container_name: nms-haproxy
+    restart: unless-stopped
+    volumes:
+      - ./config/haproxy:/usr/local/etc/haproxy
+      - ./config/ssl:/etc/ssl/certs
+    networks:
+      - nms-backend
+      - nms-frontend
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "1936:1936"
+    depends_on:
+      - grafana
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:1936/stats || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  nms-backend:
+    external: true
+    name: network-management-system_nms-backend
+  nms-frontend:
+    external: true
+    name: nms-frontend
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  netdata_data:
+  ntopng_data:

@@ -1,0 +1,275 @@
+/* Styles améliorés pour le Hub AI Assistant */
+
+.chatbot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Animations modernes */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes orbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Bouton flottant moderne */
+.chatbot-toggle-button {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: glow 3s ease-in-out infinite;
+}
+
+.chatbot-toggle-button:hover {
+  animation: none;
+}
+
+.chatbot-toggle-button .ant-btn-icon {
+  transition: all 0.3s ease;
+}
+
+/* Panneau AI Assistant moderne */
+.chatbot-panel {
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  animation: slideInUp 0.3s ease-out !important;
+}
+
+.chatbot-panel .ant-card-head {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.chatbot-panel .ant-card-body {
+  background: transparent !important;
+}
+
+.chatbot-panel .ant-tabs-tab {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 8px !important;
+  margin-right: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.chatbot-panel .ant-tabs-tab:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  transform: translateY(-2px) !important;
+}
+
+.chatbot-panel .ant-tabs-tab-active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
+  border-color: rgba(102, 126, 234, 0.3) !important;
+}
+
+/* Nouvelle interface redesignée */
+.chatbot-panel-new {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.chatbot-panel-new::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatbot-panel-new::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.chatbot-panel-new::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.chatbot-panel-new::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* En-tête du hub AI Assistant */
+.ai-assistant-header {
+  background-color: #f8fafc;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ai-assistant-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.ai-assistant-icon {
+  color: #3b82f6;
+  font-size: 18px;
+}
+
+.ai-assistant-close-btn {
+  color: #6b7280 !important;
+}
+
+.ai-assistant-close-btn:hover {
+  color: #374151 !important;
+  background-color: #f3f4f6 !important;
+}
+
+/* Corps du hub AI Assistant */
+.ai-assistant-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+/* Styles pour les onglets */
+.ai-assistant-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-assistant-tabs .ant-tabs-content-holder {
+  flex: 1;
+  overflow: hidden;
+}
+
+.ai-assistant-tabs .ant-tabs-content {
+  height: 100%;
+}
+
+.ai-assistant-tabs .ant-tabs-tabpane {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Labels des onglets */
+.tab-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.tab-text {
+  display: none;
+}
+
+/* Afficher le texte sur les écrans plus larges */
+@media (min-width: 768px) {
+  .tab-text {
+    display: inline;
+  }
+}
+
+/* Contenu des onglets */
+.tab-content {
+  height: 100%;
+  padding: 16px;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+/* Styles pour les barres de défilement */
+.tab-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 6px;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* Adaptation mobile */
+@media (max-width: 768px) {
+  .ai-assistant-panel {
+    width: calc(100vw - 40px);
+    height: 70vh;
+    bottom: 80px;
+  }
+
+  .tab-content {
+    padding: 12px;
+  }
+}
+
+/* Styles pour les composants en mode compact */
+.ai-assistant-panel .compact-mode {
+  font-size: 14px;
+}
+
+.ai-assistant-panel .compact-mode .ant-card {
+  margin-bottom: 12px;
+}
+
+.ai-assistant-panel .compact-mode .ant-table {
+  font-size: 12px;
+}
+
+/* Animation pour les changements d'onglets */
+.ai-assistant-tabs .ant-tabs-tabpane-active {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

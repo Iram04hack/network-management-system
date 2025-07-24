@@ -1,0 +1,240 @@
+/**
+ * Styles pour ConversationList
+ * Design moderne et responsive
+ */
+
+.conversation-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-primary, #ffffff);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* En-tête */
+.conversation-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--bg-secondary, #f8f9fa);
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--text-secondary, #6c757d);
+}
+
+.stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.create-button {
+  background: var(--primary-color, #007bff);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.create-button:hover:not(:disabled) {
+  background: var(--primary-hover, #0056b3);
+}
+
+.create-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refresh-button {
+  background: var(--bg-tertiary, #e9ecef);
+  color: var(--text-primary, #212529);
+  border: 1px solid var(--border-color, #dee2e6);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refresh-button:hover {
+  background: var(--bg-hover, #dee2e6);
+}
+
+.bulk-delete-button {
+  background: var(--danger-color, #dc3545);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.bulk-delete-button:hover {
+  background: var(--danger-hover, #c82333);
+}
+
+/* Recherche et filtres */
+.conversation-search {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+}
+
+.conversation-filters {
+  padding: 16px 20px;
+  background: var(--bg-secondary, #f8f9fa);
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+}
+
+/* Contenu principal */
+.conversation-list-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.conversation-virtual-list {
+  outline: none;
+}
+
+/* Pagination */
+.conversation-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--bg-secondary, #f8f9fa);
+  border-top: 1px solid var(--border-color, #e9ecef);
+}
+
+.pagination-button {
+  background: var(--bg-tertiary, #e9ecef);
+  color: var(--text-primary, #212529);
+  border: 1px solid var(--border-color, #dee2e6);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background: var(--bg-hover, #dee2e6);
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: var(--text-secondary, #6c757d);
+}
+
+/* Overlay de chargement */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* État d'erreur */
+.conversation-list.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.error-message {
+  text-align: center;
+  max-width: 400px;
+}
+
+.error-message h3 {
+  color: var(--danger-color, #dc3545);
+  margin-bottom: 8px;
+}
+
+.error-message p {
+  color: var(--text-secondary, #6c757d);
+  margin-bottom: 16px;
+}
+
+.retry-button {
+  background: var(--primary-color, #007bff);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background: var(--primary-hover, #0056b3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .conversation-list-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .actions {
+    justify-content: center;
+  }
+
+  .conversation-pagination {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Variables CSS pour thème sombre */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
+  --bg-hover: #4a4a4a;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --border-color: #404040;
+  --primary-color: #0d6efd;
+  --primary-hover: #0b5ed7;
+  --danger-color: #dc3545;
+  --danger-hover: #bb2d3b;
+}

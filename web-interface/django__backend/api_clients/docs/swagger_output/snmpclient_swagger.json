@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API SNMP Client",
+    "description": "\n    Client SNMP s\u00e9curis\u00e9 pour la gestion des \u00e9quipements r\u00e9seau.\n    \n    Ce client supporte SNMP v1, v2c et v3 avec gestion s\u00e9curis\u00e9e\n    des credentials et validation des param\u00e8tres.\n    ",
+    "version": "1.0.0"
+  },
+  "paths": {}
+}

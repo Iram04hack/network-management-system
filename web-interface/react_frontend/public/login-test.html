@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login Django</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { margin: 5px; padding: 10px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Test Login Django</h1>
+    
+    <div class="section">
+        <h2>Étape 1: Se connecter à Django Admin</h2>
+        <p>Cliquez sur ce lien pour vous connecter à Django Admin :</p>
+        <a href="/admin/" target="_blank">🔗 Django Admin</a>
+        <p>Utilisez : <strong>admin:admin</strong></p>
+    </div>
+    
+    <div class="section">
+        <h2>Étape 2: Tester avec session active</h2>
+        <button onclick="testWithSession()">🔓 Test API avec session</button>
+        <button onclick="testCSRF()">🛡️ Test CSRF Token</button>
+        <button onclick="testBasicAuth()">🔑 Test Basic Auth</button>
+    </div>
+    
+    <div class="section">
+        <h2>Résultats</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        async function testWithSession() {
+            log('🔄 Test avec session Django...');
+            
+            try {
+                const response = await fetch('/api/ai/conversations/', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Session OK! Trouvé ${data.count || data.length} conversations`, 'success');
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`);
+                } else {
+                    log(`❌ Erreur ${response.status}: ${response.statusText}`, 'error');
+                    const text = await response.text();
+                    log(`<pre>${text}</pre>`);
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCSRF() {
+            log('🔄 Test récupération CSRF token...');
+            
+            // D'abord récupérer le token CSRF
+            try {
+                const response = await fetch('/admin/', {
+                    credentials: 'include'
+                });
+                
+                const csrfToken = getCookie('csrftoken');
+                if (csrfToken) {
+                    log(`✅ CSRF Token trouvé: ${csrfToken.substring(0, 10)}...`, 'success');
+                    
+                    // Maintenant tester POST avec CSRF
+                    const postResponse = await fetch('/api/ai/conversations/', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            title: 'Test avec CSRF Token',
+                            metadata: { source: 'csrf_test' }
+                        })
+                    });
+                    
+                    if (postResponse.ok) {
+                        const data = await postResponse.json();
+                        log(`✅ POST avec CSRF réussi!`, 'success');
+                        log(`<pre>${JSON.stringify(data, null, 2)}</pre>`);
+                    } else {
+                        log(`❌ POST échoué: ${postResponse.status}`, 'error');
+                        const text = await postResponse.text();
+                        log(`<pre>${text}</pre>`);
+                    }
+                } else {
+                    log('❌ Aucun CSRF token trouvé dans les cookies', 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur CSRF: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBasicAuth() {
+            log('🔄 Test Basic Auth seulement...');
+            
+            const credentials = btoa('admin:admin');
+            
+            try {
+                const response = await fetch('/api/ai/conversations/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Basic ${credentials}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: 'Test Basic Auth seul',
+                        metadata: { source: 'basic_auth_test' }
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Basic Auth seul fonctionne!`, 'success');
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`);
+                } else {
+                    log(`❌ Basic Auth échoué: ${response.status}`, 'error');
+                    const text = await response.text();
+                    log(`<pre>${text}</pre>`);
+                }
+            } catch (error) {
+                log(`❌ Erreur Basic Auth: ${error.message}`, 'error');
+            }
+        }
+
+        // Afficher les cookies actuels
+        window.addEventListener('load', () => {
+            log(`🍪 Cookies actuels: ${document.cookie || 'Aucun'}`);
+            log(`📍 URL actuelle: ${window.location.href}`);
+        });
+    </script>
+</body>
+</html>
