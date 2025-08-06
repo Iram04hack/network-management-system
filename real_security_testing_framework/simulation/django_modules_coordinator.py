@@ -256,7 +256,7 @@ class RealisticWorkflowSimulator:
             
         elif module_name == 'ai_assistant':
             # Données réalistes du module ai_assistant
-            logger.info(f"🤖 AI Assistant: Chargement modèles IA - OpenAI GPT-4, Anthropic Claude")
+            logger.info(f"🤖 AI Assistant: Chargement modèles IA - OpenAI GPT-4, Assistant IA générique")
             logger.info(f"🧠 AI Assistant: Base connaissances - Network, Security, Troubleshooting")
             logger.info(f"📚 AI Assistant: Indexation docs - 10,000 configs, 5,000 scripts réseau")
             logger.info(f"⚙️ AI Assistant: Moteur exécution sécurisé - commandes système/réseau")

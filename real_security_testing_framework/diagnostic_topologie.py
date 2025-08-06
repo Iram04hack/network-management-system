@@ -6,7 +6,7 @@ Diagnostic de topologie GNS3 et connectivité
 Script pour diagnostiquer les problèmes de connectivité dans le projet Hybrido
 et proposer des corrections automatiques.
 
-Auteur: Claude Code  
+Auteur: Équipe de développement NMS  
 Date: 2025-07-20
 """
 

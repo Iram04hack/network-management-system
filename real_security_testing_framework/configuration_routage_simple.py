@@ -5,7 +5,7 @@ Configuration routage simplifiée
 
 Script simplifié pour configurer rapidement le routage essential.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-21
 """
 

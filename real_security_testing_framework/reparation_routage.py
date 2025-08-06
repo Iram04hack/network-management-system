@@ -6,7 +6,7 @@ Script de réparation du routage inter-VLAN
 Ce script diagnostique et corrige les problèmes de routage inter-VLAN
 pour restaurer la connectivité entre les équipements.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-20
 """
 

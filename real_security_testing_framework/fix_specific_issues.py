@@ -9,7 +9,7 @@ Ce script corrige les problèmes spécifiques identifiés dans les logs :
 3. Connectivité limitée (2/15 équipements)
 4. Serveurs QEMU non responsifs
 
-Auteur: Claude Code (Investigation des logs du 2025-07-20)
+Auteur: Équipe de développement NMS (Investigation des logs du 2025-07-20)
 """
 
 import requests

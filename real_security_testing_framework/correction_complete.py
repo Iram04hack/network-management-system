@@ -6,7 +6,7 @@ Script de correction complète de la connectivité
 Ce script corrige systématiquement tous les problèmes de connectivité
 pour rendre tous les équipements accessibles.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-20
 """
 

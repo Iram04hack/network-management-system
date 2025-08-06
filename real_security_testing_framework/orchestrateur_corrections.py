@@ -13,7 +13,7 @@ SOLUTIONS INTÉGRÉES:
 4. Configuration QEMU via SSH (remplacement vncdo)
 5. Vérification finale et lancement
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-21
 """
 

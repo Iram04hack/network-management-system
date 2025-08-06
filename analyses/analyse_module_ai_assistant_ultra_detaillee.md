@@ -18,7 +18,7 @@ Le module `ai_assistant` est un **écosystème IA d'entreprise** spécialisé da
 - **Sécurité enterprise** : Validation multi-niveaux, 806 LOC de tests sécurité, système de signaux intégré
 - **Scalabilité avancée** : Streaming WebSocket temps réel, cache distribué Redis, 7 tâches Celery + Beat scheduler
 - **Intégration Docker native** : 15 services orchestrés avec health checks et monitoring intégré
-- **Multi-provider IA avancé** : OpenAI GPT-4, Anthropic Claude, HuggingFace avec cache intelligent et streaming
+- **Multi-provider IA avancé** : OpenAI GPT-4, Assistant IA générique, HuggingFace avec cache intelligent et streaming
 - **Tests exhaustifs** : 25 fichiers de tests + anti-simulation avec couverture réelle à 87%
 - **API production-ready** : 67 endpoints REST + 2 WebSocket consumers avec Swagger v2.0 complet
 - **Intégration GNS3 native** : Analyse contextuelle dispositifs et projets avec recommandations IA
@@ -79,7 +79,7 @@ ai_assistant/
 │   └── use_cases.py            # Cas d'utilisation métier
 ├── infrastructure/           # 🔌 ADAPTERS EXTERNES (4,127 LOC)
 │   ├── ai_client_impl.py        # Client IA multi-provider avec cache - 762 LOC
-│   │   ├── DefaultAIClient (OpenAI, Anthropic, HuggingFace)
+│   │   ├── DefaultAIClient (OpenAI, Provider_IA_générique, HuggingFace)
 │   │   ├── Cache intelligent (@cache_response decorator)
 │   │   ├── Streaming natif (generate_response_stream)
 │   │   ├── Analyse commande IA (analyze_command)
@@ -221,7 +221,7 @@ class DjangoAIAssistantRepository(AIAssistantRepository):
 ```
 
 #### Strategy Pattern
-- **AIProviderStrategy** : OpenAI, Anthropic, HuggingFace
+- **AIProviderStrategy** : OpenAI, Provider_IA_générique, HuggingFace
 - **SearchStrategy** : Recherche textuelle vs embeddings vectoriels
 - **ValidationStrategy** : Validation par règles vs IA
 
@@ -260,8 +260,8 @@ graph TD
 **Services Externes APIs :**
 | API Service | Provider | Criticité | Fallback | Utilisation | Coût/1K tokens |
 |-------------|----------|-----------|----------|-------------|---------------|
-| **OpenAI GPT-4** | OpenAI | 🟠 HAUTE | Anthropic | Génération principale | $0.03 |
-| **Anthropic Claude** | Anthropic | 🟡 MOYENNE | HuggingFace | Fallback premium | $0.025 |
+| **OpenAI GPT-4** | OpenAI | 🟠 HAUTE | Provider_IA_générique | Génération principale | $0.03 |
+| **Assistant IA générique** | Provider_IA_générique | 🟡 MOYENNE | HuggingFace | Fallback premium | $0.025 |
 | **HuggingFace** | HF Hub | 🟢 FAIBLE | Local model | Fallback gratuit | Gratuit |
 
 **Services Monitoring (En cours d'intégration) :**
@@ -306,7 +306,7 @@ graph TD
 ```python
 # 1. AIModel - Configuration multi-provider avec capabilities
 class AIModel(models.Model):
-    PROVIDER_CHOICES = [('openai', 'OpenAI'), ('anthropic', 'Anthropic'), 
+    PROVIDER_CHOICES = [('openai', 'OpenAI'), ('anthropic', 'Provider_IA_générique'), 
                        ('huggingface', 'HuggingFace'), ('local', 'Local Model')]
     name = models.CharField(max_length=100, unique=True)  # Nom unique
     provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
@@ -1398,7 +1398,7 @@ graph TB
     subgraph "External Services"
         GNS3["GNS3 Server<br/>172.18.0.1:3080"]
         OpenAI["OpenAI API<br/>api.openai.com:443"]
-        Anthropic["Anthropic API<br/>api.anthropic.com:443"]
+        Provider_IA_générique["Provider_IA_générique API<br/>api.anthropic.com:443"]
     end
     
     %% Connexions principales
@@ -1407,7 +1407,7 @@ graph TB
     Django --> Elasticsearch
     Django --> GNS3
     Django --> OpenAI
-    Django --> Anthropic
+    Django --> Provider_IA_générique
     
     Celery --> Redis
     CeleryBeat --> Redis
@@ -1446,7 +1446,7 @@ graph TB
 #### Variables Critiques
 ```env
 # IA
-AI_API_KEY=sk-...                    # OpenAI/Anthropic API Key
+AI_API_KEY=sk-...                    # OpenAI/Provider_IA_générique API Key
 AI_PROVIDER=openai                   # Provider par défaut
 AI_MODEL=gpt-3.5-turbo              # Modèle par défaut
 
@@ -2045,7 +2045,7 @@ Le module `ai_assistant` représente un **écosystème IA d'entreprise** de clas
 1. **Architecture Hexagonale + DDD** : Séparation parfaite domaine/infrastructure avec 8 modèles sophistiqués
 2. **Sécurité Multi-Niveaux** : 6 couches de validation, 806 LOC de tests sécurité, audit complet
 3. **Intégration Docker Native** : 13/15 services actifs avec health checks et orchestration avancée
-4. **IA Multi-Provider Avancée** : OpenAI GPT-4, Anthropic Claude, HuggingFace avec cache intelligent
+4. **IA Multi-Provider Avancée** : OpenAI GPT-4, Assistant IA générique, HuggingFace avec cache intelligent
 5. **Streaming Temps Réel** : WebSocket consumers avec latence 15-50ms par chunk
 6. **Tests Anti-Simulation** : 25 fichiers, 5,847 LOC, couverture réelle 87%
 7. **Intégration GNS3** : Analyse contextuelle dispositifs et topologies avec recommandations IA

@@ -6,7 +6,7 @@ Configuration QEMU via SSH (remplacement de vncdo)
 Script pour configurer les serveurs QEMU via SSH au lieu de VNC
 car vncdo n'est plus disponible.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-20
 """
 

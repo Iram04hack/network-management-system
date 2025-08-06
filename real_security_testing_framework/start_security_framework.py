@@ -12,7 +12,7 @@ Ce script lance le framework de tests de sécurité avec toutes les amélioratio
 Usage:
     python3 start_security_framework.py [--mode auto|interactive]
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Version: 1.0 (Final)
 """
 

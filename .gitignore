@@ -124,3 +124,7 @@ temp/
 # Local config overrides
 local_config.py
 local_settings.py
+
+# Claude AI configuration files (keep local only)
+CLAUDE.md
+.claude/

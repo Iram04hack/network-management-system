@@ -6,7 +6,7 @@ Script de correction automatique de la topologie GNS3
 Ce script reconfigure automatiquement la topologie GNS3 pour connecter
 tous les équipements aux bridges hôte et les rendre accessibles.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-20
 """
 

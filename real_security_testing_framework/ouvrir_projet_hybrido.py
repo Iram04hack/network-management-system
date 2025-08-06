@@ -6,7 +6,7 @@ Script d'ouverture du projet Hybrido dans GNS3
 Script pour ouvrir automatiquement le projet Hybrido dans GNS3
 et vérifier son état.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-20
 """
 

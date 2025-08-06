@@ -69,7 +69,7 @@ class DefaultAIClient(AIClient):
     Implémentation par défaut du client IA.
     
     Cette classe fournit une implémentation concrète de l'interface AIClient,
-    permettant d'interagir avec différents services d'IA comme OpenAI, Anthropic, etc.
+    permettant d'interagir avec différents services d'IA comme OpenAI, assistants génériques, etc.
     """
     
     def __init__(self, model_name: str = None):
@@ -184,8 +184,8 @@ class DefaultAIClient(AIClient):
             
             if provider == "openai":
                 result = self._generate_openai_response(message, context)
-            elif provider == "anthropic":
-                result = self._generate_anthropic_response(message, context)
+            elif provider == "generic_ai":
+                result = self._generate_generic_ai_response(message, context)
             elif provider == "huggingface":
                 result = self._generate_huggingface_response(message, context)
             else:
@@ -537,9 +537,9 @@ class DefaultAIClient(AIClient):
         
         return actions
     
-    def _generate_anthropic_response(self, message: str, context: List[str]) -> Dict[str, Any]:
+    def _generate_generic_ai_response(self, message: str, context: List[str]) -> Dict[str, Any]:
         """
-        Génère une réponse via l'API Anthropic Claude.
+        Génère une réponse via une API d'IA générique.
         
         Args:
             message: Message de l'utilisateur
@@ -551,16 +551,20 @@ class DefaultAIClient(AIClient):
         try:
             # Vérification de la configuration
             if not hasattr(self.model_config, 'api_key') or not self.model_config.api_key:
-                raise AIClientException("Clé API Anthropic manquante dans la configuration", "anthropic")
+                raise AIClientException("Clé API manquante dans la configuration", "generic_ai")
             
-            # Importation de la bibliothèque Anthropic
+            # Importation de la bibliothèque générique d'IA
             try:
-                import anthropic
+                import requests
             except ImportError:
-                raise AIClientException("La bibliothèque Anthropic n'est pas installée", "anthropic")
+                raise AIClientException("La bibliothèque requests n'est pas installée", "generic_ai")
             
-            # Initialisation du client Anthropic
-            client = anthropic.Anthropic(api_key=self.model_config.api_key)
+            # Configuration pour API générique
+            api_url = getattr(self.model_config, 'endpoint', 'http://localhost:8080/v1/chat/completions')
+            headers = {
+                'Authorization': f'Bearer {self.model_config.api_key}',
+                'Content-Type': 'application/json'
+            }
             
             # Préparation des messages pour le format Anthropic
             messages = []
@@ -585,20 +589,24 @@ class DefaultAIClient(AIClient):
             
             # Système message par défaut si non trouvé dans le contexte
             system_message = next((ctx_msg[8:] for ctx_msg in context if ctx_msg.startswith("system: ")), 
-                "Tu es Claude, un assistant IA spécialisé dans la gestion de réseaux informatiques.")
+                "Tu es un assistant IA spécialisé dans la gestion de réseaux informatiques.")
             
-            # Appel à l'API Anthropic
-            logger.info(f"Appel à l'API Anthropic avec le modèle {self.model_config.model_name}")
-            response = client.messages.create(
-                model=self.model_config.model_name,
-                messages=messages,
-                system=system_message,
-                temperature=temperature,
-                max_tokens=max_tokens
-            )
+            # Appel à l'API générique
+            logger.info(f"Appel à l'API générique avec le modèle {self.model_config.model_name}")
+            
+            payload = {
+                'model': self.model_config.model_name,
+                'messages': [{'role': 'system', 'content': system_message}] + messages,
+                'temperature': temperature,
+                'max_tokens': max_tokens
+            }
+            
+            response = requests.post(api_url, headers=headers, json=payload, timeout=30)
+            response.raise_for_status()
+            response_data = response.json()
             
             # Extraction du contenu de la réponse
-            content = response.content[0].text
+            content = response_data['choices'][0]['message']['content']
             
             # Extraction des actions potentielles du contenu
             actions = self._extract_actions_from_content(content)
@@ -609,15 +617,15 @@ class DefaultAIClient(AIClient):
                 "actions": actions,
                 "sources": [],
                 "model_info": {
-                    "provider": "anthropic",
+                    "provider": "generic_ai",
                     "model": self.model_config.model_name,
-                    "tokens_used": response.usage.output_tokens + response.usage.input_tokens
+                    "tokens_used": response_data.get('usage', {}).get('total_tokens', 0)
                 }
             }
         except ImportError:
-            raise AIClientException("La bibliothèque Anthropic n'est pas installée", "anthropic")
+            raise AIClientException("La bibliothèque requests n'est pas installée", "generic_ai")
         except Exception as e:
-            raise AIClientException(f"Erreur lors de l'appel à l'API Anthropic: {e}", "anthropic")
+            raise AIClientException(f"Erreur lors de l'appel à l'API générique: {e}", "generic_ai")
     
     def _generate_huggingface_response(self, message: str, context: List[str]) -> Dict[str, Any]:
         """

@@ -5,7 +5,7 @@
 #
 # Script wrapper pour simplifier l'utilisation des outils de diagnostic GNS3.
 #
-# Auteur: Claude Code
+# Auteur: Équipe de développement NMS
 # Date: 2025-07-20
 #
 

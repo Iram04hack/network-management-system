@@ -7,7 +7,7 @@ Ce module contient les tâches Celery pour le monitoring temps réel
 du dashboard, incluant la collecte de métriques, mise à jour des
 statistiques et surveillance des systèmes.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-18
 """
 

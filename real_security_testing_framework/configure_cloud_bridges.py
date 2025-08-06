@@ -6,7 +6,7 @@ Configuration des ports Cloud1 vers les bridges
 Ce script configure les ports du Cloud1 pour qu'ils pointent
 vers les bridges créés, établissant la connectivité.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-20
 """
 

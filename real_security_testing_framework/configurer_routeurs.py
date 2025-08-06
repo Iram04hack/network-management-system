@@ -6,7 +6,7 @@ Configuration automatique des routeurs Cisco
 Script pour configurer automatiquement le routage sur les routeurs
 Cisco Dynamips du projet Hybrido.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-21
 """
 

@@ -148,4 +148,4 @@ Une fois les problèmes corrigés :
 
 ---
 
-**Créé par Claude Code - Résolution basée sur l'analyse des logs du 2025-07-20**
+**Créé par l'équipe de développement NMS - Résolution basée sur l'analyse des logs du 2025-07-20**

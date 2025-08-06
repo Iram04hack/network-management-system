@@ -23,14 +23,14 @@ AI_PROVIDERS = {
             'tokens_per_minute': 100000
         }
     },
-    'anthropic': {
-        'name': 'Anthropic Claude',
-        'api_key_env': 'ANTHROPIC_API_KEY',
-        'default_model': 'claude-3-sonnet-20240229',
+    'generic_ai': {
+        'name': 'Assistant IA Générique',
+        'api_key_env': 'GENERIC_AI_API_KEY',
+        'default_model': 'assistant-3-model',
         'supported_models': [
-            'claude-3-haiku-20240307',
-            'claude-3-sonnet-20240229',
-            'claude-3-opus-20240229'
+            'assistant-3-model',
+            'assistant-2-model',
+            'assistant-1-model'
         ],
         'max_tokens': 4096,
         'rate_limit': {

@@ -10,7 +10,7 @@ Ce script automatise le workflow complet :
 4. Vérification de la connectivité
 5. Découverte des IPs pour les tests de sécurité
 
-Auteur: Claude Code  
+Auteur: Équipe de développement NMS  
 Date: 2025-07-18
 """
 

@@ -6,7 +6,7 @@ Script de Configuration Automatique DHCP via Console GNS3
 Ce script automatise la configuration DHCP des équipements du projet Hybrido
 en accédant à leurs consoles et en configurant les adresses IP selon les VLAN.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-18
 """
 

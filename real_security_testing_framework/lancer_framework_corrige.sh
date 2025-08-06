@@ -3,7 +3,7 @@
 # Script de lancement du framework de tests de sécurité CORRIGÉ
 # Utilise l'orchestrateur principal pour résoudre automatiquement les problèmes
 # 
-# Auteur: Claude Code
+# Auteur: Équipe de développement NMS
 # Date: 2025-07-21
 
 cd /home/adjada/network-management-system/real_security_testing_framework

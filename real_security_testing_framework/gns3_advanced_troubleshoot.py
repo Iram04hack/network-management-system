@@ -6,7 +6,7 @@ Script de dépannage avancé GNS3 - Interventions manuelles
 Script complémentaire pour des interventions manuelles avancées
 lorsque l'investigation automatique ne suffit pas.
 
-Auteur: Claude Code
+Auteur: Équipe de développement NMS
 Date: 2025-07-20
 """
 

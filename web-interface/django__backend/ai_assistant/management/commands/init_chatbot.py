@@ -56,9 +56,9 @@ class Command(BaseCommand):
                     "temperature": 0.7
                 },
                 {
-                    "name": "Claude-3",
-                    "provider": "anthropic",
-                    "model_name": "claude-3-sonnet-20240229",
+                    "name": "Assistant-3",
+                    "provider": "generic_ai",
+                    "model_name": "assistant-3-model",
                     "capabilities": {
                         "chat": True,
                         "analysis": True,
