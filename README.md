@@ -59,21 +59,21 @@ Le **Network Management System (NMS)** est une plateforme complète de gestion r
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    ARCHITECTURE NMS                        │
+│                    ARCHITECTURE NMS                                    │
 ├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Frontend (React)     │  Backend (Django)    │  Services   │
-│  ├─ Dashboard         │  ├─ API Views        │  ├─ Monitor │
-│  ├─ Monitoring        │  ├─ Network Mgmt     │  ├─ Security│
-│  ├─ Network Topology  │  ├─ QoS Management   │  ├─ Traffic │
-│  ├─ Security Console  │  ├─ AI Assistant     │  └─ Storage │
-│  └─ Admin Interface   │  └─ GNS3 Integration │             │
-│                       │                      │             │
+│                                                                        │
+│  Frontend (React)     │  Backend (Django)     │  Services              │
+│  ├─ Dashboard         │  ├─ API Views        │  ├─ Monitor           │
+│  ├─ Monitoring        │  ├─ Network Mgmt     │  ├─ Security.         │
+│  ├─ Network Topology  │  ├─ QoS Management   │  ├─ Traffic.          │
+│  ├─ Security Console  │  ├─ AI Assistant     │  └─ Storage           │
+│  └─ Admin Interface   │  └─ GNS3 Integration │                       │
+│                       │                      │                        │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │              MICROSERVICES DOCKER                      │ │
-│  │  PostgreSQL │ Redis │ Elasticsearch │ Prometheus      │ │
-│  │  Grafana    │ Kibana │ Suricata     │ Fail2Ban       │ │
-│  │  NetData    │ ntopng │ HAProxy      │ Traffic-Control│ │
+│  │              MICROSERVICES DOCKER                                 │ │
+│  │  PostgreSQL │ Redis │ Elasticsearch │ Prometheus                  │ │
+│  │  Grafana    │ Kibana │ Suricata     │ Fail2Ban                    │ │
+│  │  NetData    │ ntopng │ HAProxy      │ Traffic-Control.            │ │
 │  └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -97,7 +97,7 @@ Le **Network Management System (NMS)** est une plateforme complète de gestion r
 
 ```bash
 # Cloner le repository
-git clone https://github.com/votre-username/network-management-system.git
+git clone https://github.com/Iram04hack/network-management-system.git
 cd network-management-system
 
 # Démarrer tous les services
